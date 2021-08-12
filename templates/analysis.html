@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <!--Echarts templates-->
+  <script src="static/assets/js/echarts.min.js"></script>
+  <script src="static/assets/js/ecStat.min.js"></script>
+
+  <title>IMDb Expedition</title>
+  <meta content="" name="descriptison">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="static/assets/img/favicon.png" rel="icon">
+  <link href="static/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,600,600i,700,700i,900" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/icofont/icofont.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/venobox/venobox.css" rel="stylesheet">
+  <link href="static/assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="static/assets/css/style.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: Mamba - v2.0.1
+  * Template URL: https://bootstrapmade.com/mamba-one-page-bootstrap-template-free/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+  <!-- ======= Top Bar ======= -->
+  <section id="topbar" class="d-none d-lg-block">
+    <div class="container clearfix">
+      <div class="contact-info float-left">
+        <i class="icofont-envelope"></i><a href="mailto:beihaozhou@gmail.com">beihaozhou@gmail.com</a>
+        <i class="icofont-phone"></i> +86 135 2464 7095
+      </div>
+      <div class="social-links float-right">
+        <a href="https://www.instagram.com/zbh263228/" target="_blank" class="instagram"><i class="icofont-instagram" ></i></a>
+        <a href="https://github.com/Rebecca-Chou" target="_blank" class="github"><i class="icofont-github"></i></a>
+        <a href="https://www.linkedin.com/in/beihaozhou/" target="_blank" class="linkedin"><i class="icofont-linkedin"></i></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="container">
+      <div class="logo float-left">
+        <h1 class="text-light"><a href="index.html"><span>IMDb Expedition</span></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <!-- <a href="index.html"><img src="static/assets/img/logo.png" alt="" class="img-fluid"></a>-->
+      </div>
+
+      <nav class="nav-menu float-right d-none d-lg-block">
+        <ul>
+          <li><a href="/index">Home</a></li>
+          <li><a href="/movie">Best Movies</a></li>
+          <li class="active"><a href="/analysis">Graphic Analysis</a></li>
+          <li><a href="/word">Word Cloud</a></li>
+          <li><a href="/team">Team</a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+
+    </div>
+  </header><!-- End Header -->
+
+  <!-- ======= Chart Section ======= -->
+    <section id="team" class="team">
+      <div class="container">
+        <div class="section-title">
+          <h2>IMDb "Top 250" Graphical Analysis</h2>
+          <p>Flask framework, SQLite database and Echarts are used for graphical analysis.</p>
+        </div>
+
+        <section class="counts section-bg">
+
+          <div class="container" data-aos="fade-up">
+            <div id="rating" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("rating");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                option = {
+                    title: {
+                        text: 'Distribution of IMDb "Top 250" Rating Scores',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    color: ['#3398DB'],
+                    xAxis: {
+                        type: 'category',
+                        data: {{ rating }},
+                        name: 'Rating Scores (Out of 10)',
+                        nameLocation: 'center',
+                        nameGap: '35'
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: 'Number of Movies'
+                    },
+                    series: [{
+                        data: {{ num_of_rating }},
+                        type: 'bar'
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>The histogram illustrates how movies of different rating scores are distributed.
+                    The most frequently occurred rating score is 8.1, which is also the lowest among "Top 250".
+                    The rating standard is so strict that only 5 out 250 movies are rated high than 9.</small></p>
+            </div>
+          </div>
+
+          <div class="container" data-aos="fade-up" style="margin-top: 100px">
+            <div id="lin_reg_rat_rank" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("lin_reg_rat_rank");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                // See https://github.com/ecomfe/echarts-stat
+                echarts.registerTransform(ecStat.transform.regression);
+
+                var data = {{ rank_rating }};
+
+                option = {
+                    dataset: [{
+                        source: data
+                    }, {
+                        transform: {
+                            type: 'ecStat:regression'
+                            // 'linear' by default.
+                            // config: { method: 'linear', formulaOn: 'end'}
+                        }
+                    }],
+                    title: {
+                        text: 'The Relationship between Rating Scores and Ranking',
+                        left: 'center'
+                    },
+                    legend: {
+                        bottom: 5
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        }
+                    },
+                    xAxis: {
+                        name: 'Rating Scores (Out of 10)',
+                        nameLocation: 'center',
+                        nameGap: '35',
+                        type: 'value',
+                        min: function (value) {
+                            return 8.0;
+                            },
+                        max: function (value) {
+                            return 9.4;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    yAxis: {
+                        name: 'Ranking (Out of 250)',
+                        min: function (value) {
+                            return 1;
+                            },
+                        max: function (value) {
+                            return 250;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    series: [{
+                        name: 'Scatter',
+                        type: 'scatter'
+                    }, {
+                        name: 'Line of Best Fit',
+                        type: 'line',
+                        datasetIndex: 1,
+                        symbolSize: 0.1,
+                        symbol: 'circle',
+                        label: { show: true, fontSize: 16 },
+                        labelLayout: { dx: -20 },
+                        encode: { label: 2, tooltip: 1 }
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>The scatter plot shows the relationship between the rating score and ranking of "Top 250".
+                It is clear that the movie's ranking is positively correlated with its rating score.
+                The higher the rating score a movie has, the higher does it rank.</small></p>
+            </div>
+          </div>
+
+          <div class="container" data-aos="fade-up" style="margin-top: 100px">
+            <div id="lin_reg_rat_gross" data-aos="fade-up" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("lin_reg_rat_gross");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                // See https://github.com/ecomfe/echarts-stat
+                echarts.registerTransform(ecStat.transform.regression);
+
+                var data = {{ rate_gross }};
+
+                option = {
+                    dataset: [{
+                        source: data
+                    }, {
+                        transform: {
+                            type: 'ecStat:regression'
+                            // 'linear' by default.
+                            // config: { method: 'linear', formulaOn: 'end'}
+                        }
+                    }],
+                    title: {
+                        text: 'The Relationship between Rating Scores and Gross',
+                        subtext: '**Note: Movies without Gross info are not included.',
+                        left: 'center'
+                    },
+                    legend: {
+                        bottom: 5
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        }
+                    },
+                    xAxis: {
+                        name: 'Rating Score (Out of 10)',
+                        min: function (value) {
+                            return 8.0;
+                            },
+                        max: function (value) {
+                            return 9.4;
+                            },
+                        nameLocation: 'center',
+                        nameGap: '35',
+                        type: 'value',
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    yAxis: {
+                        name: 'Gross($)',
+                        min: function (value) {
+                            return 0;
+                            },
+                        max: function (value) {
+                            return 900000000;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    series: [{
+                        name: 'Scatter',
+                        type: 'scatter'
+                    }, {
+                        name: 'Line of Best Fit',
+                        type: 'line',
+                        datasetIndex: 1,
+                        symbolSize: 0.1,
+                        symbol: 'circle',
+                        label: { show: true, fontSize: 16 },
+                        labelLayout: { dx: -20 },
+                        encode: { label: 2, tooltip: 1 }
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>It does not seem that rating score and gross have a linear correlation relationship.
+                In a word, movies' public praise cannot directly affect its commercial value.</small></p>
+            </div>
+          </div>
+
+          <div class="container" data-aos="fade-up" style="margin-top: 100px">
+            <div id="meta" data-aos="fade-up" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("meta");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                option = {
+                    title: {
+                        text: 'Distribution of IMDb "Top 250" Metascores',
+                        subtext: '**Note: 35 movies without Metascore info are not included.',
+                        left: 'center',
+                        itemGap: 15
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    color: ['#3398DB'],
+                    xAxis: {
+                        type: 'category',
+                        data: {{ meta|tojson }},
+                        name: 'Metascores (Out of 100)',
+                        nameLocation: 'center',
+                        nameGap: '35'
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: 'Number of Movies'
+                    },
+                    series: [{
+                        data: {{ num_of_meta }},
+                        type: 'bar'
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>The histogram shows that the Metascores of "Top 250" are not normally distributed, which is counter-intuitive to some extent.
+                However, it still can be seen that most Metascores of the movies are between 85 and 90.</small></p>
+            </div>
+          </div>
+
+          <div class="container" data-aos="fade-up" style="margin-top: 100px">
+            <div id="lin_reg_meta_rank" data-aos="fade-up" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("lin_reg_meta_rank");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                // See https://github.com/ecomfe/echarts-stat
+                echarts.registerTransform(ecStat.transform.regression);
+
+                var data = {{ rank_meta }};
+
+                option = {
+                    dataset: [{
+                        source: data
+                    }, {
+                        transform: {
+                            type: 'ecStat:regression'
+                            // 'linear' by default.
+                            // config: { method: 'linear', formulaOn: 'end'}
+                        }
+                    }],
+                    title: {
+                        text: 'The Relationship between Metascores and Ranking',
+                        subtext: '**Note: 35 movies without Metascore info are not included.',
+                        left: 'center'
+                    },
+                    legend: {
+                        bottom: 5
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        }
+                    },
+                    xAxis: {
+                        name: 'Metascores (Out of 100)',
+                        nameLocation: 'center',
+                        nameGap: '35',
+                        type: 'value',
+                        min: function (value) {
+                            return 55;
+                            },
+                        max: function (value) {
+                            return 100;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    yAxis: {
+                        name: 'Ranking (Out of 250)',
+                        min: function (value) {
+                            return 1;
+                            },
+                        max: function (value) {
+                            return 250;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    series: [{
+                        name: 'Scatter',
+                        type: 'scatter'
+                    }, {
+                        name: 'Line of Best Fit',
+                        type: 'line',
+                        datasetIndex: 1,
+                        symbolSize: 0.1,
+                        symbol: 'circle',
+                        label: { show: true, fontSize: 16 },
+                        labelLayout: { dx: -20 },
+                        encode: { label: 2, tooltip: 1 }
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>The scatter plot shows that there is a weak positive correlation between Metascore and ranking.
+                It is probably becuase Matescore collects more critics from professional viewers rather than the general audience, which offers a more balanced aggregate score.
+                In a word, Metascores reflect movies' artistic quality rather than popularity. As a result, Metascores is not strongly correlated with the ranking.</small></p>
+            </div>
+          </div>
+
+          <div class="container" data-aos="fade-up" style="margin-top: 100px">
+            <div id="lin_reg_meta_gross" data-aos="fade-up" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("lin_reg_meta_gross");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                // See https://github.com/ecomfe/echarts-stat
+                echarts.registerTransform(ecStat.transform.regression);
+
+                var data = {{ meta_gross }};
+
+                option = {
+                    dataset: [{
+                        source: data
+                    }, {
+                        transform: {
+                            type: 'ecStat:regression'
+                            // 'linear' by default.
+                            // config: { method: 'linear', formulaOn: 'end'}
+                        }
+                    }],
+                    title: {
+                        text: 'The Relationship between Metascores and Gross',
+                        subtext: '**Note: Movies without Gross and Metascore info are not included.',
+                        left: 'center'
+                    },
+                    legend: {
+                        bottom: 5
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        }
+                    },
+                    xAxis: {
+                        name: 'Metascore (Out of 100)',
+                        min: function (value) {
+                            return 55;
+                            },
+                        max: function (value) {
+                            return 100;
+                            },
+                        nameLocation: 'center',
+                        nameGap: '35',
+                        type: 'value',
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    yAxis: {
+                        name: 'Gross($)',
+                        min: function (value) {
+                            return 0;
+                            },
+                        max: function (value) {
+                            return 900000000;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    series: [{
+                        name: 'Scatter',
+                        type: 'scatter'
+                    }, {
+                        name: 'Line of Best Fit',
+                        type: 'line',
+                        datasetIndex: 1,
+                        symbolSize: 0.1,
+                        symbol: 'circle',
+                        label: { show: true, fontSize: 16 },
+                        labelLayout: { dx: -20 },
+                        encode: { label: 2, tooltip: 1 }
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>Similarly, Matescores also cannot reflect movies' commercial value.
+                    Metascores and gross of movies share a very weak linear correlation relationship.</small></p>
+            </div>
+          </div>
+
+          <div class="container" data-aos="fade-up" style="margin-top: 100px">
+            <div id="lin_reg_rat_meta" data-aos="fade-up" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("lin_reg_rat_meta");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                // See https://github.com/ecomfe/echarts-stat
+                echarts.registerTransform(ecStat.transform.regression);
+
+                var data = {{ rating_meta }};
+
+                option = {
+                    dataset: [{
+                        source: data
+                    }, {
+                        transform: {
+                            type: 'ecStat:regression'
+                            // 'linear' by default.
+                            // config: { method: 'linear', formulaOn: 'end'}
+                        }
+                    }],
+                    title: {
+                        text: 'The Relationship between Rating Scores and Metascores',
+                        subtext: '**Note: 35 movies without Metascore into are not included.',
+                        left: 'center'
+                    },
+                    legend: {
+                        bottom: 5
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        }
+                    },
+                    xAxis: {
+                        name: 'Rating Scores (Out of 10)',
+                        nameLocation: 'center',
+                        nameGap: '35',
+                        type: 'value',
+                        min: function (value) {
+                            return 8.0;
+                            },
+                        max: function (value) {
+                            return 9.4;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    yAxis: {
+                        name: 'Metascores (Out of 100)',
+                        min: function (value) {
+                            return 50;
+                            },
+                        max: function (value) {
+                            return 110;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    series: [{
+                        name: 'Scatter',
+                        type: 'scatter'
+                    }, {
+                        name: 'Line of Best Fit',
+                        type: 'line',
+                        datasetIndex: 1,
+                        symbolSize: 0.1,
+                        symbol: 'circle',
+                        label: { show: true, fontSize: 16 },
+                        labelLayout: { dx: -20 },
+                        encode: { label: 2, tooltip: 1 }
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>As mentioned above, rating scores are provided by the general public, while Metascores are by professional critics.
+                Therefore, these two scores mark the movies in terms of public praise and artistic quality respectively.
+                A weak linear correlation relationship between them is reasonable.</small></p>
+            </div>
+          </div>
+
+          <div class="container" data-aos="fade-up" style="margin-top: 100px">
+            <div id="lin_reg_gross_rank" data-aos="fade-up" style="width:100%;height:350px;"></div>
+            <script type="text/javascript">
+                var dom = document.getElementById("lin_reg_gross_rank");
+                var myChart = echarts.init(dom);
+                var app = {};
+                var option;
+
+                // See https://github.com/ecomfe/echarts-stat
+                echarts.registerTransform(ecStat.transform.regression);
+
+                var data = {{ gross_rank }};
+
+                option = {
+                    dataset: [{
+                        source: data
+                    }, {
+                        transform: {
+                            type: 'ecStat:regression'
+                            // 'linear' by default.
+                            // config: { method: 'linear', formulaOn: 'end'}
+                        }
+                    }],
+                    title: {
+                        text: 'The Relationship between Ranking and Gross',
+                        subtext: '**Note: Movies without Gross info out of "Top 250" are not included.',
+                        left: 'center'
+                    },
+                    legend: {
+                        bottom: 5
+                    },
+                    grid: {
+                        containLabel: true
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross'
+                        }
+                    },
+                    xAxis: {
+                        name: 'Ranking (Out of 250))',
+                        nameLocation: 'center',
+                        nameGap: '35',
+                        type: 'value',
+                        min: function (value) {
+                            return 1;
+                            },
+                        max: function (value) {
+                            return 250;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    yAxis: {
+                        name: 'Gross($)',
+                        max: function (value) {
+                            return 900000000;
+                            },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                    },
+                    series: [{
+                        name: 'Scatter',
+                        type: 'scatter'
+                    }, {
+                        name: 'Line of Best Fit',
+                        type: 'line',
+                        datasetIndex: 1,
+                        symbolSize: 0.1,
+                        symbol: 'circle',
+                        label: { show: true, fontSize: 16 },
+                        labelLayout: { dx: -20 },
+                        encode: { label: 2, tooltip: 1 }
+                    }]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+            </script>
+            <div class="col-md-10 m-auto faq-item" >
+                <p><small>Commercial value cannot be reflected by the movies' ranking or popularity.
+                    Thus, movie's gross is weakly correlated with its ranking.</small></p>
+            </div>
+          </div>
+
+        </section><!-- End Counts Section -->
+
+      </div>
+    </section><!-- End Our Team Section -->
+
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Mamba</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/mamba-one-page-bootstrap-template-free/ -->
+        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      </div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="static/assets/vendor/jquery/jquery.min.js"></script>
+  <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/assets/vendor/jquery.easing/jquery.easing.min.js"></script>
+  <script src="static/assets/vendor/php-email-form/validate.js"></script>
+  <script src="static/assets/vendor/jquery-sticky/jquery.sticky.js"></script>
+  <script src="static/assets/vendor/venobox/venobox.min.js"></script>
+  <script src="static/assets/vendor/waypoints/jquery.waypoints.min.js"></script>
+  <script src="static/assets/vendor/counterup/counterup.min.js"></script>
+  <script src="static/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="static/assets/vendor/aos/aos.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="static/assets/js/main.js"></script>
+
+</body>
+
+</html>
