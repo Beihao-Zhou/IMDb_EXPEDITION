@@ -6,7 +6,7 @@ Python, Flask, SQLite
 
 *Note: This project cannot be deployed on Github Page as it includes a database, so please clone the repo to see the full web.*
 
-## Sample Pages  
+## Demo
 ### Landing Page
 ![Landing Page1](https://github.com/Rebecca-Chou/IMDb_EXPEDITION/blob/main/static/assets/img/Sample/Home1.PNG)
 ![Landing Page2](https://github.com/Rebecca-Chou/IMDb_EXPEDITION/blob/main/static/assets/img/Sample/Home2.PNG)  
